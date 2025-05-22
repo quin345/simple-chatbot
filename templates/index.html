@@ -6,6 +6,7 @@
     <title>Jessie Chatbot</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         .message-entering {
             animation: fadeInUp 0.3s;
@@ -23,6 +24,50 @@
         .chat-container::-webkit-scrollbar-thumb {
             background-color: #9CA3AF;
             border-radius: 3px;
+        }
+        /* Markdown styling */
+        .markdown-content p {
+            margin-bottom: 0.5em;
+        }
+        .markdown-content ul, .markdown-content ol {
+            margin-left: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        .markdown-content li {
+            margin-bottom: 0.25em;
+        }
+        .markdown-content code {
+            background-color: rgba(175, 184, 193, 0.2);
+            border-radius: 3px;
+            padding: 0.2em 0.4em;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .markdown-content pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 1em;
+            overflow-x: auto;
+            margin-bottom: 1em;
+        }
+        .markdown-content pre code {
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+        }
+        .markdown-content blockquote {
+            border-left: 4px solid #dfe2e5;
+            color: #6a737d;
+            padding-left: 1em;
+            margin-left: 0;
+            margin-bottom: 1em;
+        }
+        .markdown-content a {
+            color: #0366d6;
+            text-decoration: none;
+        }
+        .markdown-content a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -61,7 +106,21 @@
                         </div>
                     </div>
                     <div class="bg-indigo-50 rounded-lg p-3 max-w-[80%]">
-                        <p class="text-gray-800">Hello! I'm TinyLlama, your AI assistant. How can I help you today?</p>
+                        <div class="markdown-content text-gray-800">
+                            Hello! I'm TinyLlama, your AI assistant. I can now understand and render **Markdown** content. Here's what I can display:
+                            
+                            - *Italic* and **bold** text
+                            - `Inline code` and code blocks:
+                            ```python
+                            def hello():
+                                print("Hello, world!")
+                            ```
+                            - Lists (like this one!)
+                            - [Links](https://example.com)
+                            - > Blockquotes
+                            
+                            How can I help you today?
+                        </div>
                         <p class="text-xs text-gray-500 mt-1">Just now</p>
                     </div>
                 </div>
@@ -95,6 +154,13 @@
     </main>
 
     <script>
+        // Configure marked (Markdown parser)
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            sanitize: true // Important for security when rendering user-generated content
+        });
+
         // Scroll chat to bottom automatically
         function scrollToBottom() {
             const chatbox = document.getElementById('chatbox');
@@ -126,7 +192,7 @@
                     </div>
                 ` : ''}
                 <div class="${sender === 'You' ? 'bg-indigo-600 text-white' : 'bg-indigo-50'} rounded-lg p-3 max-w-[80%]">
-                    <p>${message}</p>
+                    <div class="${sender === 'AI' ? 'markdown-content' : ''}">${sender === 'AI' ? marked.parse(message) : message}</div>
                     <p class="text-xs ${sender === 'You' ? 'text-indigo-200' : 'text-gray-500'} mt-1">${timestamp}</p>
                 </div>
                 ${sender === 'You' ? `
